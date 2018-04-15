@@ -1,0 +1,10 @@
+click
+sanic
+graphql-core
+
+# Dev/Deployment
+sphinx
+sphinx_rtd_theme
+nose
+coverage
+pypi-publisher
