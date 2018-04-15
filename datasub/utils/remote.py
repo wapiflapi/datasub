@@ -46,7 +46,7 @@ def typename_resolver(parent, info, **_kwargs):
     return resolvedtype
 
 
-def create_resolver(client):
+def create_sync_resolver(client):
     def resolver(parent, info, **_kwargs):
         definitions = [info.operation]
         definitions.extend(info.fragments.values())
@@ -69,17 +69,19 @@ def make_remote_executable_schema(schema, client):
     query_type = schema.get_query_type()
     if query_type is not None:
         for key, value in query_type.fields.items():
-            value.resolver = create_resolver(client)
+            value.resolver = create_sync_resolver(client)
 
     mutation_type = schema.get_mutation_type()
     if mutation_type is not None:
         for key, value in mutation_type.fields.items():
-            value.resolver = create_resolver(client)
+            value.resolver = create_sync_resolver(client)
 
     subscription_type = schema.get_subscription_type()
     if subscription_type is not None:
-        for key, value in subscription_type.fields.items():
-            value.resolver = create_resolver(client)
+        # Two things preventing us from proxying subscriptions:
+        #  - [ ] gql.Client does not expose subscriptions over websockets
+        #  - [ ] need ability to stick with datasub's own subscriptions
+        raise NotImplementedError("schema has subscription type")
 
     # Add missing abstract resolvers (scalar, unions, interfaces, ...)
     for key, value in schema.get_type_map().items():

@@ -1,13 +1,14 @@
 import click
 
 import gql
-from gql.transport.requests import RequestsHTTPTransport
 
-from datasub.utils.remote import make_remote_executable_schema
+from gql.transport.requests import RequestsHTTPTransport
+from graphql_ws.websockets_lib import WsLibSubscriptionServer
 
 from sanic import Sanic
 from sanic_graphql import GraphQLView
 
+from datasub.utils.remote import make_remote_executable_schema
 
 @click.command()
 @click.argument('remote', envvar='DATASUB_REMOTE')
@@ -37,9 +38,17 @@ def main(remote, remote_authorization, host, port, debug=False):
 
     app = Sanic()
 
+    subscription_server = WsLibSubscriptionServer(schema)
+
+    @app.websocket('/subscriptions', subprotocols=['graphql-ws'])
+    async def subscriptions(request, ws):
+        await subscription_server.handle(ws)
+        return ws
+
     app.add_route(
         GraphQLView.as_view(schema=schema, graphiql=True), '/graphql'
     )
+
     app.add_route(
         GraphQLView.as_view(schema=schema, batch=True), '/graphql/batch'
     )

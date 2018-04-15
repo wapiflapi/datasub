@@ -33,8 +33,10 @@ TBD
 
 - [x] Provide option to build delegating schemas
 - [x] Pass through queries and mutations
-- [ ] Add websocket transport for subscriptions.
+- [ ] Add monitoring-cache
+- [ ] Expose subscriptions on cache diffs.
+- [ ] Add websocket transport for subscriptions/gql.
 - [ ] Figure out when/how to reload schemas.
   Apparently best practice is committing the schema.sdl,
   give user the option to pass it as an command line option?
-- [ ] Add monitoring-cache.
+- [ ] Update requirements (warning:graphql_ws needs recent commit!)
