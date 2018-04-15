@@ -28,3 +28,13 @@ TBD
 # Example
 
 TBD
+
+# Todo
+
+- [x] Provide option to build delegating schemas
+- [x] Pass through queries and mutations
+- [ ] Add websocket transport for subscriptions.
+- [ ] Figure out when/how to reload schemas.
+  Apparently best practice is committing the schema.sdl,
+  give user the option to pass it as an command line option?
+- [ ] Add monitoring-cache.
