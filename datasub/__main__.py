@@ -1,7 +1,6 @@
 import asyncio
 
 import click
-import gql
 
 from gql.transport.requests import RequestsHTTPTransport
 from graphql_ws.websockets_lib import WsLibSubscriptionServer
@@ -10,6 +9,7 @@ from sanic import Sanic
 from sanic_graphql import GraphQLView
 
 import datasub.monitoring.e2e
+import datasub.monitoring.gql
 
 from datasub.utils.remote import make_remote_executable_schema
 
@@ -29,7 +29,7 @@ def main(remote, remote_authorization, host, port, debug=False):
     if remote_authorization is not None:
         headers['Authorization'] = remote_authorization
 
-    client = gql.Client(
+    client = datasub.monitoring.gql.Client(
         transport=RequestsHTTPTransport(
             url=remote,
             headers=headers,
@@ -43,12 +43,12 @@ def main(remote, remote_authorization, host, port, debug=False):
     app = Sanic()
 
     @app.middleware('request')
-    async def setup_request_id(request):
-        await datasub.monitoring.e2e.setup(request)
+    async def setup_e2e(request):
+        await datasub.monitoring.e2e.enter(request)
 
     @app.middleware('response')
-    async def teardown_request_id(request, response):
-        await datasub.monitoring.e2e.record(request, response)
+    async def teardown_e2e(request, response):
+        await datasub.monitoring.e2e.leave(request, response)
 
     subscription_server = WsLibSubscriptionServer(schema)
 

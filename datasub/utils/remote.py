@@ -9,10 +9,6 @@ def default_merged_resolver(parent, info, **_kwargs):
     # get_errors_from_parent is supposed to be called here,
     # but I don't yet know what it should be doing.
 
-    print("default merged resolver: parent.keys=%s, response_key=%s" % (
-        parent.keys(), response_key
-    ))
-
     if parent is None:
         return None
 
