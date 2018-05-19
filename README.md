@@ -35,8 +35,14 @@ TBD
 - [x] Pass through queries and mutations
 - [ ] Add monitoring-cache
 - [ ] Expose subscriptions on cache diffs.
+  Multiple levels of diffs possible:
+    - per request, per node gid, ...
+    - monitor user's requests and our responses
+    - monitor our requests and server responsse
+- [ ] Figure out how to do without __typename
+- [ ] Enable auto-polling.
 - [ ] Add websocket transport for subscriptions/gql.
 - [ ] Figure out when/how to reload schemas.
   Apparently best practice is committing the schema.sdl,
   give user the option to pass it as an command line option?
-- [ ] Update requirements (warning:graphql_ws needs recent commit!)
+- [ ] Add support for X-Request-ID

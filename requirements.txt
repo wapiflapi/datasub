@@ -1,6 +1,9 @@
 click
 sanic
+sanic-graphql
 graphql-core
+gql
+-e git://github.com/graphql-python/graphql-ws.git#egg=graphql-ws
 
 # Dev/Deployment
 sphinx
@@ -8,3 +11,4 @@ sphinx_rtd_theme
 nose
 coverage
 pypi-publisher
+hupper

@@ -27,7 +27,8 @@ def typename_resolver(parent, info, **_kwargs):
 
     # Basically we can't resolve abstracts. That sucks.
     # we make sure it's explicit by requiring __typename.
-    # It might be good to just merge all abstract types ?
+    # It might be good to just merge all abstract types?
+    # Or figure out which ones match?
 
     try:
         typename = parent['__typename']
@@ -62,6 +63,9 @@ def create_sync_resolver(client):
 
 
 def make_remote_executable_schema(schema, client):
+    # Get a generic resolver for this client.
+    sync_resolver = create_sync_resolver(client)
+
     # Get a deep copy of the schema by extending it with an empty ASST.
     noopdoc = graphql.language.ast.Document([])
     schema = graphql.extend_schema(schema, documentAST=noopdoc)
@@ -74,14 +78,14 @@ def make_remote_executable_schema(schema, client):
     mutation_type = schema.get_mutation_type()
     if mutation_type is not None:
         for key, value in mutation_type.fields.items():
-            value.resolver = create_sync_resolver(client)
+            value.resolver = sync_resolver
 
     subscription_type = schema.get_subscription_type()
     if subscription_type is not None:
         # Two things preventing us from proxying subscriptions:
         #  - [ ] gql.Client does not expose subscriptions over websockets
         #  - [ ] need ability to stick with datasub's own subscriptions
-        raise NotImplementedError("schema has subscription type")
+        raise NotImplementedError("Schema with subscription type.")
 
     # Add missing abstract resolvers (scalar, unions, interfaces, ...)
     for key, value in schema.get_type_map().items():
@@ -98,6 +102,8 @@ def make_remote_executable_schema(schema, client):
                 for k, v in value.fields.items():
                     v.resolver = default_merged_resolver
         elif hasattr(value, 'resolver'):
-            raise RuntimeError("Missing resolver replacement.")
+            raise NotImplementedError(
+                "Missing resolver replacement for %s: %s." % (key, value)
+            )
 
     return schema

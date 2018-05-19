@@ -1,5 +1,6 @@
-import click
+import asyncio
 
+import click
 import gql
 
 from gql.transport.requests import RequestsHTTPTransport
@@ -8,7 +9,10 @@ from graphql_ws.websockets_lib import WsLibSubscriptionServer
 from sanic import Sanic
 from sanic_graphql import GraphQLView
 
+import datasub.monitoring.e2e
+
 from datasub.utils.remote import make_remote_executable_schema
+
 
 @click.command()
 @click.argument('remote', envvar='DATASUB_REMOTE')
@@ -37,6 +41,14 @@ def main(remote, remote_authorization, host, port, debug=False):
     schema = make_remote_executable_schema(client.schema, client)
 
     app = Sanic()
+
+    @app.middleware('request')
+    async def setup_request_id(request):
+        await datasub.monitoring.e2e.setup(request)
+
+    @app.middleware('response')
+    async def teardown_request_id(request, response):
+        await datasub.monitoring.e2e.record(request, response)
 
     subscription_server = WsLibSubscriptionServer(schema)
 
