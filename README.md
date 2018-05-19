@@ -9,25 +9,22 @@ author: Wannes Rombouts
 
 A GraphQL cache mapping queries to subscriptions.
 
-# Installation / Usage
+# Installation
 
-To install use pip:
-
-    $ pip install datasub
-
-
-Or clone the repo:
+Clone the repo and install:
 
     $ git clone https://github.com/wapiflapi/datasub.git
-    $ python setup.py install
+    $ python setup.py install  # or `develop` for hacking.
 
-# Contributing
+# Usage
 
-TBD
+As an early alpha the usage is mainly geared towards testing.
 
-# Example
+    $ python -m datasub --help
 
-TBD
+To run `datasub` as a front to GitHub's API with `hupper` providing auto-reload on file changes:
+
+    $ DATASUB_REMOTE_AUTHORIZATION="bearer XXX" hupper -m datasub --debug https://api.github.com/graphql
 
 # Todo
 
@@ -38,7 +35,7 @@ TBD
   Multiple levels of diffs possible:
     - per request, per node gid, ...
     - monitor user's requests and our responses
-    - monitor our requests and server responsse
+    - monitor our requests and server responses
 - [ ] Figure out how to do without __typename
 - [ ] Enable auto-polling.
 - [ ] Add websocket transport for subscriptions/gql.
@@ -46,3 +43,4 @@ TBD
   Apparently best practice is committing the schema.sdl,
   give user the option to pass it as an command line option?
 - [ ] Add support for X-Request-ID
+- [ ] Forward authentication
