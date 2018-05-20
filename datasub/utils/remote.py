@@ -52,7 +52,7 @@ def create_sync_resolver(client):
             definitions=definitions,
         )
 
-        result = client.execute(document)
+        result = client.execute(document, variable_values=info.variable_values)
         return default_merged_resolver(result, info)
 
     return resolver
