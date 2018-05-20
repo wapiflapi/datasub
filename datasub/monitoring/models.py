@@ -9,7 +9,7 @@ from sqlalchemy import func
 from sqlalchemy import ForeignKey, Column
 from sqlalchemy import DateTime, Float, String, Text
 
-from sqlalchemy_utils import UUIDType, aggregated
+from sqlalchemy_utils import aggregated, UUIDType, JSONType
 
 
 logger = logging.getLogger(__name__)
@@ -40,8 +40,10 @@ class Execution(Base):
 
     operations = relationship('Operation', back_populates='execution')
 
+    variables = Column(JSONType())
+
     @classmethod
-    def from_document(cls, document, variable_values, **kwargs):
+    def from_document(cls, document, **kwargs):
 
         operations = [
             Operation.from_definition(definition) for definition in document.definitions

@@ -40,7 +40,9 @@ async def loggql(dsruuid, document, variable_values, result, dt, ds):
     logger.debug("loggql(%s)", dsruuid)
 
     with scoped_session() as session:
-        execution = Execution.from_document(document, variable_values)
+        execution = Execution.from_document(
+            document, variables=variable_values, dt=dt, ds=ds,
+        )
         session.add(execution)
 
 
