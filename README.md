@@ -48,3 +48,4 @@ This stores info in sqlite file. Given the `--setup-db` option the database is c
 - [ ] Add support for X-Request-ID
 - [ ] Forward authentication
 - [ ] Make sure monitoring never prevents request completion. (crashes, etc.)
+- [ ] monitor user errors

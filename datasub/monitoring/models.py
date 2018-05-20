@@ -2,6 +2,9 @@ import datetime
 import logging
 import uuid
 
+import graphql.language.ast
+import graphql.language.printer
+
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref, relationship
 
@@ -17,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 Base = declarative_base()
 
+UUIDType = UUIDType(binary=False)
 
 class Request(Base):
     __tablename__ = 'request'
@@ -39,6 +43,7 @@ class Execution(Base):
     request = relationship('Request', back_populates='executions')
 
     operations = relationship('Operation', back_populates='execution')
+    fragments = relationship('Fragment', back_populates='execution')
 
     variables = Column(JSONType())
 
@@ -46,10 +51,22 @@ class Execution(Base):
     def from_document(cls, document, **kwargs):
 
         operations = [
-            Operation.from_definition(definition) for definition in document.definitions
+            Operation.from_definition(definition)
+            for definition in document.definitions
+            if isinstance(definition, graphql.language.ast.OperationDefinition)
         ]
 
-        return cls(operations=operations, **kwargs)
+        fragments = [
+            Fragment.from_definition(definition)
+            for definition in document.definitions
+            if isinstance(definition, graphql.language.ast.FragmentDefinition)
+        ]
+
+        return cls(
+            operations=operations,
+            fragments=fragments,
+            **kwargs
+        )
 
 
 class Operation(Base):
@@ -60,18 +77,39 @@ class Operation(Base):
     execution_id = Column(UUIDType, ForeignKey('execution.id'))
     execution = relationship('Execution', back_populates='operations')
 
-    operation = String(length=128)
-    name = String(length=128)
+    operation = Column(String(length=128))
+    name = Column(String(length=128))
+
+    definition = Column(Text())
 
     @classmethod
     def from_definition(cls, definition, **kwargs):
-
-        logger.info("definition.variable_definitions: %r", definition.variable_definitions)
-        logger.info("definition.directives: %r", definition.directives)
-        logger.info("definition.selection_set: %r", definition.selection_set)
-
         return cls(
             operation=definition.operation,
-            name=definition.name,
+            name=definition.name.value,
+            definition=graphql.language.printer.print_ast(definition),
+            **kwargs
+        )
+
+
+class Fragment(Base):
+    __tablename__ = 'fragment'
+
+    id = Column(UUIDType, primary_key=True, default=uuid.uuid4)
+
+    execution_id = Column(UUIDType, ForeignKey('execution.id'))
+    execution = relationship('Execution', back_populates='fragments')
+
+    name = Column(String(length=128))
+    type_condition = Column(String(length=128))
+
+    definition = Column(Text())
+
+    @classmethod
+    def from_definition(cls, definition, **kwargs):
+        return cls(
+            name=definition.name.value,
+            type_condition = definition.type_condition.name.value,
+            definition=graphql.language.printer.print_ast(definition),
             **kwargs
         )
