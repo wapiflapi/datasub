@@ -9,7 +9,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref, relationship
 
 from sqlalchemy import func
-from sqlalchemy import ForeignKey, Column
+from sqlalchemy import ForeignKey, Column, Table
 from sqlalchemy import DateTime, Float, String, Text
 
 from sqlalchemy_utils import aggregated, UUIDType, JSONType
@@ -32,6 +32,20 @@ class Request(Base):
     executions = relationship('Execution', back_populates='request')
 
 
+execution_operation_link = Table(
+    'execution_operation_link', Base.metadata,
+    Column('left_id', UUIDType, ForeignKey('execution.id')),
+    Column('right_id', UUIDType, ForeignKey('operation.id'))
+)
+
+
+execution_fragment_link = Table(
+    'execution_fragment_link', Base.metadata,
+    Column('left_id', UUIDType, ForeignKey('execution.id')),
+    Column('right_id', UUIDType, ForeignKey('fragment.id'))
+)
+
+
 class Execution(Base):
     __tablename__ = "execution"
 
@@ -42,8 +56,16 @@ class Execution(Base):
     request_id = Column(UUIDType, ForeignKey('request.id'))
     request = relationship('Request', back_populates='executions')
 
-    operations = relationship('Operation', back_populates='execution')
-    fragments = relationship('Fragment', back_populates='execution')
+    operations = relationship(
+        "Operation",
+        secondary=execution_operation_link,
+        back_populates="executions",
+    )
+    fragments = relationship(
+        "Fragment",
+        secondary=execution_fragment_link,
+        back_populates="executions",
+    )
 
     variables = Column(JSONType())
 
@@ -74,8 +96,11 @@ class Operation(Base):
 
     id = Column(UUIDType, primary_key=True, default=uuid.uuid4)
 
-    execution_id = Column(UUIDType, ForeignKey('execution.id'))
-    execution = relationship('Execution', back_populates='operations')
+    executions = relationship(
+        'Execution',
+        secondary=execution_operation_link,
+        back_populates='operations',
+    )
 
     operation = Column(String(length=128))
     name = Column(String(length=128))
@@ -97,8 +122,11 @@ class Fragment(Base):
 
     id = Column(UUIDType, primary_key=True, default=uuid.uuid4)
 
-    execution_id = Column(UUIDType, ForeignKey('execution.id'))
-    execution = relationship('Execution', back_populates='fragments')
+    executions = relationship(
+        'Execution',
+        secondary=execution_fragment_link,
+        back_populates='fragments',
+    )
 
     name = Column(String(length=128))
     type_condition = Column(String(length=128))
