@@ -1,46 +1,50 @@
 import uuid
 import functools
-import hashlib
 import json
 import asyncio
+import logging
+import datetime
 
 from datasub.utils.aiocache import taskcache as context
+from datasub.monitoring.database import scoped_session
+from datasub.monitoring.models import Request, Execution
+
+logger = logging.getLogger(__name__)
+
 
 def get_dsruuid():
-    return context["ds_request_uuid"]
+    return context["dsruuid"]
 
 
 async def enter(request):
-    dsruuid = str(uuid.uuid4())
-    print("Setup for %s" % dsruuid)
-    context["ds_request_uuid"] = dsruuid
+    dsruuid = uuid.uuid4()
+    logger.debug("enter(%s)", dsruuid)
+    context["dsruuid"] = dsruuid
 
-    # Log some of this stuff.
-    # authsha = hashlib.sha256(
-    #     request.headers.get('Authorization', '').encode('utf8')
-    # ).hexdigest()
-    # hashody = hashlib.sha256(
-    #     json.dumps(request.json, sort_keys=True).encode('utf8')
-    # ).hexdigest()
+    with scoped_session() as session:
+        request = Request(id=dsruuid)
+        session.add(request)
 
 
 async def leave(request, response):
     dsruuid = get_dsruuid()
-    print("Record for %s" % dsruuid)
+    logger.debug("leave(%s)", dsruuid)
     response.headers["DS-Request-UUID"] = dsruuid
 
+    with scoped_session() as session:
+        request = session.query(Request).get(dsruuid)
+        request.ds = (datetime.datetime.utcnow() - request.dt).total_seconds()
 
-def loggql_async(document, result):
+
+async def loggql(dsruuid, document, variable_values, result, dt, ds):
+    logger.debug("loggql(%s)", dsruuid)
+
+    with scoped_session() as session:
+        execution = Execution.from_document(document, variable_values)
+        session.add(execution)
+
+
+def loggql_async(*args, **kwargs):
     return asyncio.ensure_future(
-        loggql(document, result, get_dsruuid())
+        loggql(get_dsruuid(), *args, **kwargs)
     )
-
-
-async def loggql(document, result, dsruuid=None):
-    if dsruuid is None:
-        dsruuid = get_dsruuid()
-    print("LogGQL for %s" % dsruuid)
-
-    # Log some of this stuff.
-    print(type(document), document)
-    print(type(result), result)

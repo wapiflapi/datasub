@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 import click
 
@@ -19,7 +20,16 @@ from datasub.utils.remote import make_remote_executable_schema
 @click.option('--port', '-P', type=click.INT, default=8000,
               envvar='DATASUB_PORT', help='Datasub server port.')
 @click.option('--debug/--no-debug', default=False, help='Debug mode.')
-def main(remote, remote_authorization, host, port, debug=False):
+@click.option('--reset-db/--no-reset-db', default=False, help='Reset database.')
+def main(remote, remote_authorization, host, port, debug=False, reset_db=False):
+
+    if debug:
+        logging.basicConfig(level=logging.DEBUG)
+
+    if reset_db:
+        from datasub.monitoring.database import engine
+        from datasub.monitoring.models import Base
+        Base.metadata.create_all(bind=engine)
 
     headers = {}
     if remote_authorization is not None:

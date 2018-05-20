@@ -24,7 +24,10 @@ As an early alpha the usage is mainly geared towards testing.
 
 To run `datasub` as a front to GitHub's API with `hupper` providing auto-reload on file changes:
 
-    $ DATASUB_REMOTE_AUTHORIZATION="bearer XXX" hupper -m datasub --debug https://api.github.com/graphql
+    $ DATABASE_URL='sqlite:///datasub.sqlite' DATASUB_REMOTE_AUTHORIZATION="bearer XXX" hupper -m datasub --debug https://api.github.com/graphql --reset-db
+
+This stores info in sqlite file. Given the `--reset-db` option the database is reconfigured,
+
 
 # Todo
 
@@ -44,3 +47,4 @@ To run `datasub` as a front to GitHub's API with `hupper` providing auto-reload 
   give user the option to pass it as an command line option?
 - [ ] Add support for X-Request-ID
 - [ ] Forward authentication
+- [ ] Make sure monitoring never prevents request completion. (crashes, etc.)

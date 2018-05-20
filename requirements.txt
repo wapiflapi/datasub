@@ -3,7 +3,10 @@ sanic
 sanic-graphql
 graphql-core
 gql
--e git://github.com/graphql-python/graphql-ws.git#egg=graphql-ws
+git+ssh://git@github.com/graphql-python/graphql-ws.git#egg=graphql-ws
+sqlalchemy
+sqlalchemy-utils
+graphene-sqlalchemy
 
 # Dev/Deployment
 sphinx
