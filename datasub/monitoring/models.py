@@ -6,6 +6,7 @@ import graphql.language.ast
 import graphql.language.printer
 
 from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.declarative import declarative_base
@@ -16,11 +17,18 @@ from sqlalchemy import DateTime, Float, String, Text
 
 from sqlalchemy_utils import aggregated, UUIDType, JSONType
 
+import datasub.monitoring.database
+
 
 logger = logging.getLogger(__name__)
 
 
 Base = declarative_base()
+Base.query = scoped_session(sessionmaker(
+    autocommit=False, autoflush=False,
+    bind=datasub.monitoring.database.engine)
+).query_property()
+
 
 UUIDType = UUIDType(binary=False)
 

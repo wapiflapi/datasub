@@ -3,6 +3,7 @@ from sanic_graphql import GraphQLView
 from graphql_ws.websockets_lib import WsLibSubscriptionServer
 
 import datasub.monitoring.e2e
+from datasub.monitoring.schema import schema as monitoring_schema
 
 
 def create(schema):
@@ -30,6 +31,16 @@ def create(schema):
 
     app.add_route(
         GraphQLView.as_view(schema=schema, batch=True), '/graphql/batch'
+    )
+
+    app.add_route(
+        GraphQLView.as_view(schema=monitoring_schema, graphiql=True),
+        '/monitoring/graphql'
+    )
+
+    app.add_route(
+        GraphQLView.as_view(schema=monitoring_schema, batch=True),
+        '/monitoring/graphql/batch'
     )
 
     return app
