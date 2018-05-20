@@ -24,9 +24,9 @@ As an early alpha the usage is mainly geared towards testing.
 
 To run `datasub` as a front to GitHub's API with `hupper` providing auto-reload on file changes:
 
-    $ DATABASE_URL='sqlite:///datasub.sqlite' DATASUB_REMOTE_AUTHORIZATION="bearer XXX" hupper -m datasub --debug https://api.github.com/graphql --reset-db
+    $ DATABASE_URL='sqlite:///datasub.sqlite' DATASUB_REMOTE_AUTHORIZATION="bearer XXX" hupper -m datasub --debug https://api.github.com/graphql --setup-db
 
-This stores info in sqlite file. Given the `--reset-db` option the database is reconfigured,
+This stores info in sqlite file. Given the `--setup-db` option the database is configured,
 
 
 # Todo
