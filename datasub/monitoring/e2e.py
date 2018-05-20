@@ -41,7 +41,7 @@ async def loggql(dsruuid, document, variable_values, result, dt, ds):
 
     with scoped_session() as session:
         execution = Execution.from_document(
-            document, request_id=dsruuid,
+            session, document, request_id=dsruuid,
             variables=variable_values, dt=dt, ds=ds,
         )
         session.add(execution)
