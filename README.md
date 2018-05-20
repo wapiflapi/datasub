@@ -33,7 +33,7 @@ This stores info in sqlite file. Given the `--setup-db` option the database is c
 
 - [x] Provide option to build delegating schemas
 - [x] Pass through queries and mutations
-- [ ] Add monitoring-cache
+- [x] Add monitoring-cache
 - [ ] Expose subscriptions on cache diffs.
   Multiple levels of diffs possible:
     - per request, per node gid, ...
