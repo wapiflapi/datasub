@@ -1,6 +1,12 @@
+import sys
+
 from setuptools import setup, find_packages
 from codecs import open
 from os import path
+
+
+if sys.version_info < (3, 6):
+    sys.exit('Sorry, Python < 3.6 is not supported')
 
 __version__ = '0.0.1'
 

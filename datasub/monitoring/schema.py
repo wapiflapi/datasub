@@ -41,6 +41,7 @@ class Query(graphene.ObjectType):
     node = relay.Node.Field()
     request = graphene.Field(Request)
     all_requests = SQLAlchemyConnectionField(Request)
+    all_executions = SQLAlchemyConnectionField(Execution)
     all_operations = SQLAlchemyConnectionField(Operation)
     all_fragments = SQLAlchemyConnectionField(Fragment)
 

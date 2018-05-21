@@ -149,7 +149,7 @@ class Operation(Base, GetOrCreateMixIn):
             session,
             id=definition_uuid,
             operation=definition.operation,
-            name=definition.name.value,
+            name=definition.name.value if definition.name else None,
             definition=definition_rep,
             **kwargs
         )
@@ -181,7 +181,7 @@ class Fragment(Base, GetOrCreateMixIn):
         return cls.get_or_create(
             session,
             id=definition_uuid,
-            name=definition.name.value,
+            name=definition.name.value if definition.name else None,
             type_condition = definition.type_condition.name.value,
             definition=definition_rep,
             **kwargs
