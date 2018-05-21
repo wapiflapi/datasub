@@ -1,3 +1,4 @@
+import uuid
 import graphene
 
 from graphene import relay
@@ -17,6 +18,11 @@ class Request(SQLAlchemyObjectType):
     class Meta:
         model = models.Request
         interfaces = (relay.Node, )
+
+    uuid = graphene.String()
+
+    def resolve_uuid(self, info):
+        return str(self.id)
 
 
 class Execution(SQLAlchemyObjectType):
@@ -39,12 +45,17 @@ class Fragment(SQLAlchemyObjectType):
 
 class Query(graphene.ObjectType):
     node = relay.Node.Field()
-    request = graphene.Field(Request)
+    request = graphene.Field(Request, uuid=graphene.String())
     all_requests = SQLAlchemyConnectionField(Request)
     all_executions = SQLAlchemyConnectionField(Execution)
     all_operations = SQLAlchemyConnectionField(Operation)
     all_fragments = SQLAlchemyConnectionField(Fragment)
 
+    def resolve_request(self, info, **kwargs):
+        if 'uuid' not in kwargs:
+            return None
+        ruuid = uuid.UUID(kwargs['uuid'].value)
+        return models.Request.query.get(ruuid)
+
 
 schema = graphene.Schema(query=Query)
-print(schema)
